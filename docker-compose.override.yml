@@ -1,0 +1,10 @@
+services:
+  pprof-tools:
+    image: golang:1.23
+    container_name: pprof_tools
+    depends_on:
+      - gateway
+    working_dir: /workspace
+    volumes:
+      - ./:/workspace
+    entrypoint: ["tail", "-f", "/dev/null"]

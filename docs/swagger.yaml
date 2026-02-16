@@ -1,0 +1,461 @@
+basePath: /api
+definitions:
+  Address:
+    properties:
+      area:
+        type: string
+      city:
+        type: string
+      city_district:
+        type: string
+      country:
+        type: string
+      house:
+        type: string
+      house_with_type:
+        type: string
+      lat:
+        type: number
+      lng:
+        type: number
+      postal_code:
+        type: string
+      region:
+        type: string
+      result:
+        type: string
+      settlement:
+        type: string
+      street:
+        type: string
+      street_with_type:
+        type: string
+    type: object
+  CreateUserRequest:
+    properties:
+      age:
+        example: 25
+        maximum: 150
+        minimum: 1
+        type: integer
+      email:
+        example: user@example.com
+        type: string
+      location:
+        example: USA
+        maxLength: 200
+        minLength: 2
+        type: string
+      name:
+        example: John Doe
+        maxLength: 100
+        minLength: 2
+        type: string
+    required:
+    - age
+    - email
+    - location
+    - name
+    type: object
+  CreationTokenResponse:
+    properties:
+      created_at:
+        example: "2025-07-30T09:25:48.509957118+03:00"
+        type: string
+      token:
+        description: JWT токен
+        example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpX6CJ9g52d
+        type: string
+    type: object
+  ErrorResponse:
+    properties:
+      error:
+        example: Invalid request
+        type: string
+      message:
+        example: Error message
+        type: string
+    type: object
+  GeocodeRequest:
+    properties:
+      lat:
+        example: "55.7558"
+        type: string
+      lng:
+        example: "37.6176"
+        type: string
+    required:
+    - lat
+    - lng
+    type: object
+  SearchRequest:
+    properties:
+      query:
+        example: Москва, ул. Тверская, 1
+        type: string
+    required:
+    - query
+    type: object
+  SearchResponse:
+    properties:
+      addresses:
+        items:
+          $ref: '#/definitions/Address'
+        type: array
+    type: object
+  UpdateUserRequest:
+    properties:
+      age:
+        example: 25
+        maximum: 150
+        minimum: 1
+        type: integer
+      email:
+        example: user@example.com
+        type: string
+      location:
+        example: 'USA '
+        maxLength: 200
+        minLength: 2
+        type: string
+      name:
+        example: John Doe
+        maxLength: 100
+        minLength: 2
+        type: string
+    type: object
+  UserListResponse:
+    properties:
+      limit:
+        example: 10
+        type: integer
+      offset:
+        example: 0
+        type: integer
+      total:
+        example: 10
+        type: integer
+      users:
+        items:
+          $ref: '#/definitions/UserResponse'
+        type: array
+    type: object
+  UserResponse:
+    properties:
+      age:
+        example: 25
+        type: integer
+      created_at:
+        type: string
+      email:
+        example: user@example.com
+        type: string
+      id:
+        example: 550e8400-e29b-41d4-a716-446655440000
+        type: string
+      location:
+        example: USA
+        type: string
+      name:
+        example: John Doe
+        type: string
+      updated_at:
+        type: string
+    type: object
+host: localhost:8080
+info:
+  contact:
+    email: support@swagger.io
+    name: API Support
+    url: http://www.swagger.io/support
+  description: API для работы с геоданными и адресами через DaData
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  termsOfService: http://swagger.io/terms/
+  title: GeoService API
+  version: "1.0"
+paths:
+  /address/geocode:
+    post:
+      consumes:
+      - application/json
+      description: Получение адреса по координатам через DaData API
+      parameters:
+      - description: Координаты для обратного геокодирования
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/GeocodeRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/SearchResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        "503":
+          description: Service Unavailable
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Обратное геокодирование
+      tags:
+      - addresses
+  /address/search:
+    post:
+      consumes:
+      - application/json
+      description: Поиск адресов по текстовому запросу через DaData API
+      parameters:
+      - description: Запрос для поиска адресов
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/SearchRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/SearchResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        "503":
+          description: Service Unavailable
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Поиск адресов
+      tags:
+      - addresses
+  /creation-token:
+    get:
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/CreationTokenResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+      summary: Создание токена для авторизации
+      tags:
+      - get token
+  /users:
+    get:
+      parameters:
+      - description: 'Введите количество пользователей (default: 10, max: 100)'
+        in: query
+        maximum: 100
+        minimum: 1
+        name: limit
+        type: integer
+      - description: 'Введите порядковый номер пользователя с которого начать выборку
+          (default: 0)'
+        in: query
+        minimum: 0
+        name: offset
+        type: integer
+      - description: Введите параметр для поиска
+        in: query
+        name: search
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/UserListResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+      summary: Получить список пользователей с выборкой по количеству и параметру
+      tags:
+      - users
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: 'Введите значения в поля: Email, Name, Age, Location'
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/CreateUserRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/UserResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+      summary: Добавить нового пользователя
+      tags:
+      - users
+  /users/{id}:
+    get:
+      parameters:
+      - description: Введите ID пользователя
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/UserResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+      summary: Получить пользователя по ID
+      tags:
+      - users
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: Введите ID пользователя
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: 'Редактируйте значения полей: Email, Name, Age, Location'
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/UpdateUserRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/UserResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+      summary: Обновить информацию о пользователе
+      tags:
+      - users
+  /users/{id}/delete:
+    delete:
+      parameters:
+      - description: Введите ID пользователя
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+      summary: Удалить пользователя по ID
+      tags:
+      - users
+schemes:
+- http-handle
+securityDefinitions:
+  BearerAuth:
+    description: 'Авторизация с token в формате: Bearer {token}'
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"
